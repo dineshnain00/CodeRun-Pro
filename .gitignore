@@ -1,0 +1,28 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Build files
+build/
+dist/
+.expo/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+
+# Docker
+*.dockerfile
+*.tar
+
+# Logs
+*.log
+
+# React Native / Electron caches
+.expo-shared/
+.idea/
+.vscode/
