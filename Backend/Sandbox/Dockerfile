@@ -1,7 +1,11 @@
-FROM ubuntu:20.04
+FROM node:20
+
 RUN apt-get update && \
-    apt-get install -y python3 nodejs gcc g++ openjdk-11-jdk
+    apt-get install -y python3 openjdk-17-jdk g++ && \
+    npm install -g nodemon
+
 WORKDIR /app
-COPY run_sandbox.sh /app/run_sandbox.sh
-RUN chmod +x /app/run_sandbox.sh
-CMD ["/app/run_sandbox.sh"]
+
+COPY . .
+
+CMD ["npm", "start"]
