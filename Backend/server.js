@@ -1,26 +1,32 @@
-const express = require("express");
-const cors = require("cors");
-const { exec } = require("child_process");
-const path = require("path");
+import express from "express";
+import cors from "cors";
+import bodyParser from "body-parser";
+import { exec } from "child_process";
+import { v4 as uuidv4 } from "uuid";
+import path from "path";
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(bodyParser.json());
 
-app.post("/run", (req, res) => {
+const PORT = 5000;
+
+// Compile Code Endpoint
+app.post("/run", async (req, res) => {
   const { code, language } = req.body;
-  const filename = `code.${languageConfig[language].extension}`;
-  const filePath = path.join(__dirname, filename);
-  const fs = require("fs");
+  const id = uuidv4();
+  const fileName = `/tmp/${id}.${languageConfig[language].extension}`;
+  const command = languageConfig[language].run(fileName);
 
-  fs.writeFileSync(filePath, code);
-
-  const cmd = languageConfig[language].runCommand.replace("{file}", filePath);
-  exec(cmd, (error, stdout, stderr) => {
-    if (error) return res.json({ error: stderr || error.message });
-    res.json({ output: stdout });
-  });
+  try {
+    await fs.promises.writeFile(fileName, code);
+    exec(command, (err, stdout, stderr) => {
+      if (err) return res.json({ error: stderr });
+      res.json({ output: stdout });
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Execution failed" });
+  }
 });
 
-const languageConfig = require("../shared/utils/languageConfig");
-app.listen(5000, () => console.log("⚙️ Backend running on port 5000"));
+app.listen(PORT, () => console.log(`🚀 Backend running on port ${PORT}`));
