@@ -1,22 +1,26 @@
-const express = require('express');
-const { exec } = require('child_process');
-const app = express();
+const express = require("express");
+const cors = require("cors");
+const { exec } = require("child_process");
+const path = require("path");
 
+const app = express();
+app.use(cors());
 app.use(express.json());
 
-app.post('/run', (req, res) => {
-  const { language, code } = req.body;
-  const fileName = `temp.${language}`;
-  const fs = require('fs');
-  fs.writeFileSync(fileName, code);
+app.post("/run", (req, res) => {
+  const { code, language } = req.body;
+  const filename = `code.${languageConfig[language].extension}`;
+  const filePath = path.join(__dirname, filename);
+  const fs = require("fs");
 
-  exec(`docker run --rm -v $(pwd):/code mycompilerimage ./run_code.sh ${language} /code/${fileName}`, (err, stdout, stderr) => {
-    if (err) {
-      res.status(500).send(stderr);
-      return;
-    }
-    res.send(stdout);
+  fs.writeFileSync(filePath, code);
+
+  const cmd = languageConfig[language].runCommand.replace("{file}", filePath);
+  exec(cmd, (error, stdout, stderr) => {
+    if (error) return res.json({ error: stderr || error.message });
+    res.json({ output: stdout });
   });
 });
 
-app.listen(3000, () => console.log('Server running on port 3000'));
+const languageConfig = require("../shared/utils/languageConfig");
+app.listen(5000, () => console.log("⚙️ Backend running on port 5000"));
