@@ -1,33 +1,35 @@
-import React, { useState } from 'react';
-import { View, TextInput, Button, Text } from 'react-native';
-import axios from 'axios';
+import React, { useState } from "react";
+import { View, TextInput, Button, Text } from "react-native";
+import axios from "axios";
 
-export default function CodeEditorScreen() {
-  const [code, setCode] = useState('');
-  const [output, setOutput] = useState('');
+export default function EditorScreen() {
+  const [code, setCode] = useState("");
+  const [output, setOutput] = useState("");
 
   const runCode = async () => {
-    try {
-      const response = await axios.post('http://localhost:3000/run', {
-        language: 'python',
-        code,
-      });
-      setOutput(response.data);
-    } catch (error) {
-      setOutput('Error executing code');
-    }
+    const res = await axios.post("http://localhost:5000/run", {
+      code,
+      language: "js",
+    });
+    setOutput(res.data.output || res.data.error);
   };
 
   return (
-    <View>
+    <View style={{ padding: 20 }}>
       <TextInput
+        style={{
+          borderWidth: 1,
+          height: 200,
+          padding: 10,
+          marginBottom: 10,
+        }}
         multiline
         value={code}
         onChangeText={setCode}
-        placeholder="Write your code here"
+        placeholder="Write code here..."
       />
       <Button title="Run Code" onPress={runCode} />
-      <Text>{output}</Text>
+      <Text style={{ marginTop: 10 }}>Output: {output}</Text>
     </View>
   );
 }
