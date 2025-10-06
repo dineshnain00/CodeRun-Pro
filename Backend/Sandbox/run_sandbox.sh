@@ -1,18 +1,8 @@
 #!/bin/bash
+# Runs code safely in Docker sandbox
+
 LANGUAGE=$1
 CODE_FILE=$2
 
-case $LANGUAGE in
-  python)
-    python3 $CODE_FILE
-    ;;
-  java)
-    javac $CODE_FILE && java ${CODE_FILE%.java}
-    ;;
-  node)
-    node $CODE_FILE
-    ;;
-  *)
-    echo "Unsupported language"
-    ;;
-esac
+docker run --rm -v "$(pwd)/sandbox:/app" sandbox-image \
+    bash -c "node /app/run_code.js $LANGUAGE $CODE_FILE"
